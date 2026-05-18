@@ -9,14 +9,18 @@ import {
   UserSchema,
 } from "@/src/types";
 
-const DEFAULT_URL = Platform.select({
+const HOSTED_URL = "https://gamed-mock-server.onrender.com";
+
+const LOCAL_URL = Platform.select({
   ios: "http://localhost:4000",
   android: "http://10.0.2.2:4000",
   default: "http://localhost:4000",
 });
 
-export const API_URL =
-  (process.env.EXPO_PUBLIC_API_URL as string | undefined) ?? DEFAULT_URL;
+const envUrl = process.env.EXPO_PUBLIC_API_URL as string | undefined;
+const useLocal = process.env.EXPO_PUBLIC_USE_LOCAL_API === "1";
+
+export const API_URL = envUrl ?? (useLocal ? LOCAL_URL : HOSTED_URL);
 
 class ApiError extends Error {
   status: number;

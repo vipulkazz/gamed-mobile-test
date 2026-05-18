@@ -11,26 +11,30 @@ pnpm install --dir server   # mock server deps
 
 ## Run
 
-The app reads its API URL from `EXPO_PUBLIC_API_URL`. Defaults (when the env var is not set):
+The app talks to the hosted mock server by default — no extra steps needed:
 
-- iOS Simulator: `http://localhost:4000`
-- Android emulator: `http://10.0.2.2:4000`
+```bash
+pnpm ios       # iOS Simulator
+pnpm android   # Android emulator
+```
 
-Run fully local:
+Default API URL: `https://gamed-mock-server.onrender.com` (free Render instance kept warm by a GitHub Actions ping every 14 min).
+
+To run fully local (bypass Render):
 
 ```bash
 # Terminal 1 — mock server
 cd server && node server.js
 
 # Terminal 2 — app
-pnpm ios       # iOS Simulator
-pnpm android   # Android emulator
+EXPO_PUBLIC_USE_LOCAL_API=1 pnpm ios       # iOS → http://localhost:4000
+EXPO_PUBLIC_USE_LOCAL_API=1 pnpm android   # Android → http://10.0.2.2:4000
 ```
 
-Or point at the hosted server (deployed on Render):
+Or point at any other URL:
 
 ```bash
-EXPO_PUBLIC_API_URL=https://<your-render-service>.onrender.com pnpm ios
+EXPO_PUBLIC_API_URL=https://your-server.example.com pnpm ios
 ```
 
 Login is prefilled on the screen:
