@@ -1,0 +1,18 @@
+{
+  "name": "gamed-mock-server",
+  "version": "1.0.0",
+  "description": "Mock backend for the GAMED mobile test app",
+  "main": "server.js",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}
