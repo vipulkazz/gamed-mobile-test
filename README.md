@@ -1,72 +1,44 @@
 # GAMED — Mobile Technical Test
 
-Three-screen Expo SDK 54 app: Login → Profile → Connect Platform. RN 0.81 with New Architecture, TypeScript strict, NativeWind v4, Zustand auth, TanStack Query v5, Zod schemas, `expo-secure-store` for tokens.
+Three-screen Expo SDK 54 app: Login → Profile → Connect / Disconnect Platform.
+RN 0.81 New Architecture, TypeScript strict, NativeWind v4, Zustand auth,
+TanStack Query v5, Zod schemas, `expo-secure-store` for tokens, Skia for visuals.
 
-## Setup
+## Install & run
 
-```bash
-pnpm install
-pnpm install --dir server   # mock server deps
-```
-
-## Run
-
-The app talks to the hosted mock server by default — no extra steps needed:
+Prereqs: Node 20+, **pnpm 9+**, Xcode 15+ (iOS) and/or Android Studio with an emulator.
 
 ```bash
-pnpm ios       # iOS Simulator
+pnpm install                    # app deps
+cd server && npm install && cd .. # mock server deps
+
+pnpm ios       # iOS Simulator (first build ~8–12 min: prebuild + pods + xcodebuild)
+# or
 pnpm android   # Android emulator
 ```
 
-Default API URL: `https://gamed-mock-server.onrender.com` (free Render instance kept warm by a GitHub Actions ping every 14 min).
+The app talks to the **hosted mock server** by default
+(`https://gamed-mock-server.onrender.com`, kept warm by a 14-min Actions cron).
+**Login is prefilled** with the only seeded user: `player@gamed.dev` / `hunter22`.
 
-To run fully local (bypass Render):
-
-```bash
-# Terminal 1 — mock server
-cd server && node server.js
-
-# Terminal 2 — app
-EXPO_PUBLIC_USE_LOCAL_API=1 pnpm ios       # iOS → http://localhost:4000
-EXPO_PUBLIC_USE_LOCAL_API=1 pnpm android   # Android → http://10.0.2.2:4000
-```
-
-Or point at any other URL:
+To run the mock server locally instead:
 
 ```bash
-EXPO_PUBLIC_API_URL=https://your-server.example.com pnpm ios
+cd server && node server.js                          # http://localhost:4000
+# new terminal:
+EXPO_PUBLIC_USE_LOCAL_API=1 pnpm ios                 # or pnpm android
 ```
 
-Login is prefilled on the screen:
-
-- email: `player@gamed.dev`
-- password: `hunter22`
+Type check: `pnpm exec tsc --noEmit`
 
 ## Tested on
 
-- iOS Simulator — iPhone 16 Pro, iOS 18.1
+- iOS Simulator — iPhone 17 Pro, iOS 26.5 (clean-clone verified from this repo)
 - Android Emulator — Pixel 7, API 34 (Android 14)
-
-## Verifying
-
-```bash
-pnpm exec tsc --noEmit       # strict, must pass
-curl http://localhost:4000/health
-```
-
-## Hosted mock server
-
-The mock server is deployed to Render (free web service). A GitHub Actions cron hits `/health` every 14 minutes to keep the dyno warm (Render free tier spins down after 15 min idle). See `render.yaml` and `.github/workflows/ping.yml`.
-
-## Architecture
-
-- **Tokens** live exclusively in `expo-secure-store`. The wrapper in `src/lib/secureStore.ts` is the only module that touches the keychain. AsyncStorage is not used anywhere.
-- **Auth state** lives in `src/stores/authStore.ts` (Zustand). The root layout hydrates tokens at cold start; an `AuthGate` redirects between `(auth)` and `(app)` groups based on the token.
-- **Data fetching** uses TanStack Query for `/me` and `/me/sessions`. Pull-to-refresh wires `refetch()` on both.
-- **Connect Platform** uses `useMutation` with `onMutate` writing an optimistic update into the `profile` cache, and `onError` rolling back to the captured snapshot. The button is disabled while pending. A `Simulate failure` toggle on that screen lets the reviewer trigger a 500 to exercise the rollback path.
-- **API contracts** are typed with Zod schemas in `src/types/index.ts`; types flow through hooks and components. No `any`, no `ts-ignore`.
 
 ## Known issues / would change
 
-- Refresh-token rotation isn't wired — `/auth/login` returns a refresh token but there is no `/auth/refresh` endpoint. A real implementation would intercept 401s, hit refresh, and retry once.
-- The `Simulate failure` toggle on the connect screen is a reviewer affordance; in production it would be removed.
+- Refresh-token rotation isn't wired — the server returns one but there's no `/auth/refresh` endpoint or 401-retry interceptor. Would add for any real auth.
+- The *Simulate failure* toggle on Screen 3 is a reviewer affordance; would remove in production.
+- Confetti fires on every successful connect; would cap to first-time only.
+- Single hardcoded user in the mock server — fine for the test, real backend would use a proper auth store.
