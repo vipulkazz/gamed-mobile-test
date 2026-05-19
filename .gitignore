@@ -42,8 +42,6 @@ app-example
 /ios
 /android
 
-# IDE / agent caches
-.claude/
-.cursor/
+# IDE caches
 .idea/
 .vscode/
