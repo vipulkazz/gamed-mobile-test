@@ -44,7 +44,7 @@ export const SessionsResponseSchema = z.object({
 });
 export type SessionsResponse = z.infer<typeof SessionsResponseSchema>;
 
-export const ApiErrorSchema = z.object({
+export const ApiErrorBodySchema = z.object({
   error: z.string(),
 });
-export type ApiError = z.infer<typeof ApiErrorSchema>;
+export type ApiErrorBody = z.infer<typeof ApiErrorBodySchema>;

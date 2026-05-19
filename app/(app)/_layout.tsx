@@ -13,7 +13,13 @@ export default function AppLayout() {
       <Stack.Screen name="profile" options={{ headerShown: false }} />
       <Stack.Screen
         name="connect/[platform]"
-        options={{ title: "Connect Platform", presentation: "card" }}
+        options={{
+          title: "Connect Platform",
+          presentation: "card",
+          gestureEnabled: false,
+          headerTransparent: true,
+          headerStyle: { backgroundColor: "transparent" },
+        }}
       />
     </Stack>
   );

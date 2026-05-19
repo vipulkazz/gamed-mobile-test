@@ -17,7 +17,7 @@ const LOCAL_URL = Platform.select({
   default: "http://localhost:4000",
 });
 
-const envUrl = process.env.EXPO_PUBLIC_API_URL as string | undefined;
+const envUrl = process.env.EXPO_PUBLIC_API_URL;
 const useLocal = process.env.EXPO_PUBLIC_USE_LOCAL_API === "1";
 
 export const API_URL = envUrl ?? (useLocal ? LOCAL_URL : HOSTED_URL);
@@ -91,15 +91,16 @@ export async function fetchSessions(
   );
 }
 
-export async function connectPlatform(
+export async function setPlatformConnection(
   token: string,
   platform: PlatformId,
+  connected: boolean,
   fail?: boolean,
 ): Promise<User> {
   const query = fail ? "?fail=1" : "";
   return request(
     `/me/platforms/${platform}${query}`,
-    { method: "PATCH", token, body: { connected: true } },
+    { method: "PATCH", token, body: { connected } },
     (data) => UserSchema.parse(data),
   );
 }
